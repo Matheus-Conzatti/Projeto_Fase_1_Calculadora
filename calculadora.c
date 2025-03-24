@@ -40,26 +40,21 @@ float operacao(float a, float b, char x) {
         case '+':
             return a + b;
             break;
-
         case '-':
             return a - b;
             break;
         case '/':
             return a / b;
             break;
-
         case '*':
             return a * b;
             break;
-
         case '|':
             return pow(a, b);
             break;
-
         case '&':
             return sqrt(a);
             break;
-
         default:
             return 0.0;
     }
@@ -82,7 +77,7 @@ float resolverExp(char x[]) {
             free(n1);
             free(n2);
         } else {
-            num = strtof(poteiro, NULL); // Usando strtof
+            num = strtof(poteiro, NULL); 
             pilha = empilhar(pilha, num);
         }
 
@@ -98,6 +93,7 @@ float resolverExp(char x[]) {
 void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     FILE *arquivos[numeroArquivos];
     char linha[100];
+    char expOriginal[100];
 
     for(int i = 0; i < numeroArquivos; i++){
         arquivos[i] = fopen(nomeArquivos[i], "r");
@@ -107,12 +103,13 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
         }
     }
 
-    for(int i = 0; i < numeroArquivos; i++){
-        printf("Conteudo do arquivo %s:\n", nomeArquivos[i]);
-        while(fgets(linha, 100, arquivos[i]) != NULL){
-            printf("%s", linha);
+    for (int i = 0; i < numeroArquivos; i++) {
+        printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
+        while (fgets(linha, 100, arquivos[i]) != NULL) {
+            linha[strcspn(linha, "\n")] = 0;
+            strcpy(expOriginal, linha);
+            printf("Expressao: %s = %.0f\n", expOriginal, resolverExp(linha));
         }
-
         printf("\n");
     }
 
