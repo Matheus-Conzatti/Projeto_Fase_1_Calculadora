@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <io.h>
+#include <util\delay.h>
 
-typedef struct no {
+typedef struct no{
     float valor;
     struct no *prox;
 } No;
 
-No *empilhar(No *pilha, float num) {
+No *empilhar(No *pilha, float num){
     No *novo = malloc(sizeof(No));
 
     if (novo) {
@@ -25,7 +27,7 @@ No *empilhar(No *pilha, float num) {
 No *desempilhar(No **pilha) {
     No *remover = NULL;
 
-    if (*pilha) {
+    if(*pilha){
         remover = *pilha;
         *pilha = remover->prox;
     } else {
@@ -103,9 +105,9 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
         }
     }
 
-    for (int i = 0; i < numeroArquivos; i++) {
+    for(int i = 0; i < numeroArquivos; i++){
         printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
-        while (fgets(linha, 100, arquivos[i]) != NULL) {
+        while(fgets(linha, 100, arquivos[i]) != NULL){
             linha[strcspn(linha, "\n")] = 0;
             strcpy(expOriginal, linha);
             printf("Expressao: %s = %.0f\n", expOriginal, resolverExp(linha));
@@ -118,7 +120,15 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     }
 }
 
-int main() {
+void gerarAssembly(){
+    DDRB |= (1 << PB5);
+    while(1){
+        PORTB ^= (1 << PB5);
+        _dalay_ms(50);
+    }
+}
+
+int main(){
     char *nomesArquivos[] = {"expressoes1.txt", "expressoes2.txt", "expressoes3.txt"};
     int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
 
