@@ -1,39 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+#include <io.h>
+#include <util\delay.h>
 
 typedef struct no{
     float valor;
     struct no *prox;
-}No;
+} No;
 
 No *empilhar(No *pilha, float num){
     No *novo = malloc(sizeof(No));
 
-    if(novo){
-        novo -> valor = num;
-        novo -> prox = pilha;
+    if (novo) {
+        novo->valor = num;
+        novo->prox = pilha;
         return novo;
-    }else{
+    } else {
         printf("\tErro na alocacao de memoria!\n");
     }
 
     return NULL;
 }
 
-No *desempilhar(No **pilha){
-    No *remover = *pilha;
+No *desempilhar(No **pilha) {
+    No *remover = NULL;
+
     if(*pilha){
-        *pilha = remover -> prox;
-    }else{
+        remover = *pilha;
+        *pilha = remover->prox;
+    } else {
         printf("\tPilha vazia!\n");
     }
 
     return remover;
 }
 
-float operacao(float a, float b, char x){
-    switch(x){
+float operacao(float a, float b, char x) {
+    switch (x) {
         case '+':
             return a + b;
             break;
@@ -51,71 +56,82 @@ float operacao(float a, float b, char x){
             break;
         case '&':
             return sqrt(a);
+            break;
         default:
             return 0.0;
     }
 }
 
-float resolveExp(char x[]){
-    char *ponteiro;
+float resolverExp(char x[]) {
+    char *poteiro;
     float num;
     No *n1, *n2, *pilha = NULL;
-    int x = 0;
-    int strtok();
 
-    ponteiro = strtok(x, " ");
-    while (ponteiro){
-        if (ponteiro[0] == '+' || ponteiro[0] == '-' || ponteiro[0] == '/' || ponteiro[0] == '*' || ponteiro[0] == '|' || ponteiro[0] == '&'){
+    poteiro = strtok(x, " ");
+    while (poteiro) {
+        if (poteiro[0] == '+' || poteiro[0] == '-' || poteiro[0] == '/' || poteiro[0] == '*' || poteiro[0] == '|' || poteiro[0] == '&') {
             n1 = desempilhar(&pilha);
             n2 = desempilhar(&pilha);
 
-            num = operacao(n2 -> valor, n1 -> valor, ponteiro[0]);
+            num = operacao(n2->valor, n1->valor, poteiro[0]);
             pilha = empilhar(pilha, num);
 
             free(n1);
             free(n2);
-        }else{
-            num = strtol(ponteiro, NULL, 10);
+        } else {
+            num = strtof(poteiro, NULL); 
             pilha = empilhar(pilha, num);
         }
 
-        ponteiro = strtok(NULL, " ");
+        poteiro = strtok(NULL, " ");
     }
 
     n1 = desempilhar(&pilha);
-    num = n1 -> valor;
+    num = n1->valor;
     free(n1);
     return num;
 }
 
-int main(){
-    char expA[50] = {"3 2 +"};
-  char expB[50] = {"2 3 4 *"};
-  char expC[50] = {"4 2 2 /"};
-  char expD[50] = {"4 2 |"};
-  char expE[50] = {"4 &"}; // Expressão com problema 
-  char expF[50] = {"4 2 + 3 *"};
+void lerArquivos(char *nomeArquivos[], int numeroArquivos){
+    FILE *arquivos[numeroArquivos];
+    char linha[100];
+    char expOriginal[100];
 
-  printf("Resultado da letra A(%s): ", expA);
-  printf("%.0f\n", resolverExp(expA));
-  
-  printf("\n");
-  printf("Resultado da letra B(%s): ", expB);
-  printf("%.0f\n", resolverExp(expB));
-  
-  printf("\n");
-  printf("Resultado da letra C(%s): ", expC);
-  printf("%.0f\n", resolverExp(expC));
-  
-  printf("\n");
-  printf("Resultado da letra D(%s): ", expD);
-  printf("%.0f\n", resolverExp(expD));
-  printf("\n");
-  
-  //printf("Resultado da letra E(%s): ", expE);
-  //printf("%.0f\n", resolverExp(expE));
-  
-  printf("\n");
-  printf("Resultado da letra F(%s): ", expF);
-  printf("%.0f\n", resolverExp(expF)); 
+    for(int i = 0; i < numeroArquivos; i++){
+        arquivos[i] = fopen(nomeArquivos[i], "r");
+        if(arquivos[i] == NULL){
+            printf("Erro ao abrir o arquivo %s.\n", nomeArquivos[i]);
+            return;
+        }
+    }
+
+    for(int i = 0; i < numeroArquivos; i++){
+        printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
+        while(fgets(linha, 100, arquivos[i]) != NULL){
+            linha[strcspn(linha, "\n")] = 0;
+            strcpy(expOriginal, linha);
+            printf("Expressao: %s = %.0f\n", expOriginal, resolverExp(linha));
+        }
+        printf("\n");
+    }
+
+    for(int i = 0; i < numeroArquivos; i++){
+        fclose(arquivos[i]);
+    }
+}
+
+void gerarAssembly(){
+    DDRB |= (1 << PB5);
+    while(1){
+        PORTB ^= (1 << PB5);
+        _dalay_ms(50);
+    }
+}
+
+int main(){
+    char *nomesArquivos[] = {"expressoes1.txt", "expressoes2.txt", "expressoes3.txt"};
+    int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
+
+    lerArquivos(nomesArquivos, numArquivos);
+    return 0;
 }
