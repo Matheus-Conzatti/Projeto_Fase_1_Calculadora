@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <avr/io.h>
-#include <util/delay.h>
+// #include <avr/io.h>
+// #include <util/delay.h>
 
 typedef struct no{
     float valor;
@@ -47,12 +47,12 @@ float operacao(float a, float b, char x) {
             return a / b;
         case '*':
             return a * b;
-        case '|':
+        case '^':
             return pow(a, b);
         case '&':
-            return sqrt(a);  // Raiz quadrada
+            return sqrt(a); 
         case '%':
-            return fmod(a, b);  // Resto de divisão com números de ponto flutuante
+            return fmod(a, b); 
         default:
             return 0.0;
     }
@@ -88,34 +88,32 @@ float resolverExp(char x[]) {
     return num;
 }
 
-void lerArquivos(char *nomeArquivos[], int numeroArquivos){
-    FILE *arquivos[numeroArquivos];
+void lerArquivos(char *nomeArquivos[], int numeroArquivos) {
+    FILE *arquivo;
     char linha[100];
-    char expOriginal[100];
+    char expressaoOriginal[100];
 
-    for(int i = 0; i < numeroArquivos; i++){
-        arquivos[i] = fopen(nomeArquivos[i], "r"); 
-        if(arquivos[i] == NULL){
+    for (int i = 0; i < numeroArquivos; i++) {
+        arquivo = fopen(nomeArquivos[i], "r");
+
+        if (arquivo == NULL) {
             printf("Erro ao abrir o arquivo %s.\n", nomeArquivos[i]);
-            return;
+            continue;
         }
-    }
 
-    for(int i = 0; i < numeroArquivos; i++){
         printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
-        while(fgets(linha, 100, arquivos[i]) != NULL){
-            linha[strcspn(linha, "\n")] = 0;
-            strcpy(expOriginal, linha);
-            printf("Expressao: %s = %.0f\n", expOriginal, resolverExp(linha));
+        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            linha[strcspn(linha, "\n")] = 0; 
+            strcpy(expressaoOriginal, linha);
+            printf("Expressao: %s = %.0f\n", expressaoOriginal, resolverExp(linha));
         }
-        printf("\n");
-    }
 
-    for(int i = 0; i < numeroArquivos; i++){
-        fclose(arquivos[i]);
+        printf("\n");
+        fclose(arquivo); 
     }
 }
 
+/*
 void gerarAssembly(){
     DDRB |= (1 << PB5);
     while(1){
@@ -123,11 +121,12 @@ void gerarAssembly(){
         _delay_ms(50);
     }
 }
+*/
 
 int main(){
     char *nomesArquivos[] = {"expressoes1.txt", "expressoes2.txt", "expressoes3.txt"};
     int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
 
     lerArquivos(nomesArquivos, numArquivos);
-    return 0;
+    return 0;;
 }
