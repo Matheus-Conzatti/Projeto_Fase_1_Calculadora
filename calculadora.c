@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <io.h>
-#include <util\delay.h>
+#include <avr/io.h>
+#include <util/delay.h>
 
 typedef struct no{
     float valor;
@@ -41,22 +41,18 @@ float operacao(float a, float b, char x) {
     switch (x) {
         case '+':
             return a + b;
-            break;
         case '-':
             return a - b;
-            break;
         case '/':
             return a / b;
-            break;
         case '*':
             return a * b;
-            break;
         case '|':
             return pow(a, b);
-            break;
         case '&':
-            return sqrt(a);
-            break;
+            return sqrt(a);  // Raiz quadrada
+        case '%':
+            return fmod(a, b);  // Resto de divisão com números de ponto flutuante
         default:
             return 0.0;
     }
@@ -79,7 +75,7 @@ float resolverExp(char x[]) {
             free(n1);
             free(n2);
         } else {
-            num = strtof(poteiro, NULL); 
+            num = atof(poteiro);
             pilha = empilhar(pilha, num);
         }
 
@@ -98,7 +94,7 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     char expOriginal[100];
 
     for(int i = 0; i < numeroArquivos; i++){
-        arquivos[i] = fopen(nomeArquivos[i], "r");
+        arquivos[i] = fopen(nomeArquivos[i], "r"); 
         if(arquivos[i] == NULL){
             printf("Erro ao abrir o arquivo %s.\n", nomeArquivos[i]);
             return;
@@ -124,7 +120,7 @@ void gerarAssembly(){
     DDRB |= (1 << PB5);
     while(1){
         PORTB ^= (1 << PB5);
-        _dalay_ms(50);
+        _delay_ms(50);
     }
 }
 
