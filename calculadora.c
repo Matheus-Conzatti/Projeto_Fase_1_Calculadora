@@ -2,17 +2,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-// #include <avr/io.h>
-// #include <util/delay.h>
 
-typedef struct no{
+typedef struct no {
     float valor;
     struct no *prox;
 } No;
 
-No *empilhar(No *pilha, float num){
+No *empilhar(No *pilha, float num) {
     No *novo = malloc(sizeof(No));
-
     if (novo) {
         novo->valor = num;
         novo->prox = pilha;
@@ -20,41 +17,30 @@ No *empilhar(No *pilha, float num){
     } else {
         printf("\tErro na alocacao de memoria!\n");
     }
-
     return NULL;
 }
 
 No *desempilhar(No **pilha) {
     No *remover = NULL;
-
-    if(*pilha){
+    if (*pilha) {
         remover = *pilha;
         *pilha = remover->prox;
     } else {
         printf("\tPilha vazia!\n");
     }
-
     return remover;
 }
 
 float operacao(float a, float b, char x) {
     switch (x) {
-        case '+':
-            return a + b;
-        case '-':
-            return a - b;
-        case '/':
-            return a / b;
-        case '*':
-            return a * b;
-        case '^':
-            return pow(a, b);
-        case '&':
-            return sqrt(a); 
-        case '%':
-            return fmod(a, b); 
-        default:
-            return 0.0;
+        case '+': return a + b;
+        case '-': return a - b;
+        case '/': return a / b;
+        case '*': return a * b;
+        case '^': return pow(a, b);
+        case '&': return sqrt(a);
+        case '%': return fmod(a, b);
+        default: return 0.0;
     }
 }
 
@@ -78,7 +64,6 @@ float resolverExp(char x[]) {
             num = atof(poteiro);
             pilha = empilhar(pilha, num);
         }
-
         poteiro = strtok(NULL, " ");
     }
 
@@ -103,30 +88,20 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos) {
 
         printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
         while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-            linha[strcspn(linha, "\n")] = 0; 
+            linha[strcspn(linha, "\n")] = 0;
             strcpy(expressaoOriginal, linha);
             printf("Expressao: %s = %.0f\n", expressaoOriginal, resolverExp(linha));
         }
 
         printf("\n");
-        fclose(arquivo); 
+        fclose(arquivo);
     }
 }
 
-/*
-void gerarAssembly(){
-    DDRB |= (1 << PB5);
-    while(1){
-        PORTB ^= (1 << PB5);
-        _delay_ms(50);
-    }
-}
-*/
-
-int main(){
+int main() {
     char *nomesArquivos[] = {"expressoes1.txt", "expressoes2.txt", "expressoes3.txt"};
     int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
 
     lerArquivos(nomesArquivos, numArquivos);
-    return 0;;
+    return 0;
 }
