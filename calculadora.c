@@ -33,14 +33,32 @@ No *desempilhar(No **pilha) {
 
 float operacao(float a, float b, char x) {
     switch (x) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '/': return a / b;
-        case '*': return a * b;
-        case '^': return pow(a, b);
-        case '&': return sqrt(a);
-        case '%': return fmod(a, b);
-        default: return 0.0;
+        case '+': 
+            return a + b;
+            break;
+        case '-': 
+            return a - b;
+            break;
+        case '/':
+            if(b == 0){
+                printf("Erro: não é possivel fazer divisão por zero!\n");
+            }
+            return a / b;
+            break;
+        case '*': 
+            return a * b;
+            break;
+        case '^': 
+            return pow(a, b);
+            break;
+        case '&': 
+            return sqrt(a);
+            break;
+        case '%': 
+            return fmod(a, b);
+            break;
+        default: 
+            return 0.0;
     }
 }
 
