@@ -6,6 +6,7 @@
 
 typedef uint16_t half; // Representa a meia precisão
 
+// Função para fazer a conversão de 32bits para a meia precisão de 16bits/IEEE754
 half meiaPrecisao(float num){
     uint32_t f = *(uint32_t*)&num;
     uint16_t sign = (f >> 16) & 0x8000;
