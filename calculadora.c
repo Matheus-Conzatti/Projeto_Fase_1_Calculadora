@@ -1,11 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include <string.h>
 
+typedef uint16_t half; // Representa a meia precisão
+
+half meiaPrecisao(float num){
+    uint32_t f = *(uint32_t*)&num;
+    uint16_t sign = (f >> 16) & 0x8000;
+    uint16_t expoente = ((f >> 23) & 0xFF) - 112; // Ajusta da operação do expoente.
+    uint16_t mantissa = (f >> 12) & 0x03FF;
+
+    if(expoente <= 0){
+        return sign;
+    }else if(expoente >= 31){
+        return sign | 0x7C00 | (mantissa ? 1 : 0); 
+    }
+
+    return sign | (expoente << 10) || mantissa;
+}
+
 // Respresentação  de uma estrutura de dados dinâmica usando uma lista encadeadas.
 typedef struct no {
-    float valor; // Recebe um valor numérico
+    half valor; // Recebe um valor numérico
     struct no *prox; // Ponteiro para o próximo e nó na pilha.
 } No;
 
@@ -13,7 +31,7 @@ typedef struct no {
 No *empilhar(No *pilha, float num) {
     No *novo = malloc(sizeof(No)); // Aloca memória para um novo nó.
     if (novo) {
-        novo->valor = num; // Faz atribuição de valor
+        novo->valor = meiaPrecisao(num); // Faz atribuição de valor
         novo->prox = pilha; // O novo nó aponta para o topo atual da pilha
         return novo; // Retorna um novo topo.
     } else {
@@ -43,22 +61,24 @@ float operacao(float a, float b, char x) {
             return a - b;
             break;
         case '/': // Divisão de número real.
+            /*
             if(b == 0){
                 printf("Erro: não é possivel fazer divisão por zero!\n");
             }
-            return a / b;
+            */
+            return (b != 0) ? a / b : NAN;
             break;
         case '*': 
             return a * b;
             break;
         case '^':  // Operação da Exponenciação
-            return pow(a, b);
+            return powf(a, b);
             break;
         case '&': // Raiz quadrada, somente um dos operador é usado
-            return sqrt(a);
+            return sqrtf(a);
             break;
         case '%': // Resto da divisão
-            return fmod(a, b);
+            return fmodf(a, b);
             break;
         default: 
             return 0.0;
@@ -73,9 +93,12 @@ float resolverExp(char x[]) {
 
     poteiro = strtok(x, " ");
     while (poteiro) {
-        if (poteiro[0] == '+' || poteiro[0] == '-' || poteiro[0] == '/' || poteiro[0] == '*' || poteiro[0] == '|' || poteiro[0] == '&') {
+        if (strchr("+-/*^&%", poteiro[0])) {
             n1 = desempilhar(&pilha); // Faz a função desempilhar para guardar o valor na variavel n1
             n2 = desempilhar(&pilha); // Faz a função desempilhar para guardar o valor na variavel n2
+
+            float val_1 = meiaPrecisao(n1->valor);
+            float val_2 = meiaPrecisao(n2->valor);
 
             num = operacao(n2->valor, n1->valor, poteiro[0]); // Realiza a função da operação
             pilha = empilhar(pilha, num); // Empilha os resultado da função da operação.
@@ -90,7 +113,7 @@ float resolverExp(char x[]) {
     }
 
     n1 = desempilhar(&pilha); // último número da pilha e também o resultado final
-    num = n1->valor;
+    num = meiaPrecisao(n1->valor);
     free(n1);
     return num;
 }
