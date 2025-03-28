@@ -18,7 +18,7 @@ half meiaPrecisao(float num){
         return sign | 0x7C00 | (mantissa ? 1 : 0); 
     }
 
-    return sign | (expoente << 10) || mantissa;
+    return sign | (expoente << 10) | mantissa;
 }
 
 // Respresentação  de uma estrutura de dados dinâmica usando uma lista encadeadas.
@@ -61,11 +61,6 @@ float operacao(float a, float b, char x) {
             return a - b;
             break;
         case '/': // Divisão de número real.
-            /*
-            if(b == 0){
-                printf("Erro: não é possivel fazer divisão por zero!\n");
-            }
-            */
             return (b != 0) ? a / b : NAN;
             break;
         case '*': 
