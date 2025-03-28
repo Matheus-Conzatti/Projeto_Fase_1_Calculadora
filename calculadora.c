@@ -3,32 +3,35 @@
 #include <math.h>
 #include <string.h>
 
+// Respresentação  de uma estrutura de dados dinâmica usando uma lista encadeadas.
 typedef struct no {
-    float valor;
-    struct no *prox;
+    float valor; // Recebe um valor numérico
+    struct no *prox; // Ponteiro para o próximo e nó na pilha.
 } No;
 
+// Função que faz o empilhamento dos valores ao topo da pilha
 No *empilhar(No *pilha, float num) {
-    No *novo = malloc(sizeof(No));
+    No *novo = malloc(sizeof(No)); // Aloca memória para um novo nó.
     if (novo) {
-        novo->valor = num;
-        novo->prox = pilha;
-        return novo;
+        novo->valor = num; // Faz atribuição de valor
+        novo->prox = pilha; // O novo nó aponta para o topo atual da pilha
+        return novo; // Retorna um novo topo.
     } else {
         printf("\tErro na alocacao de memoria!\n");
     }
     return NULL;
 }
 
+// Função para desempilhar o valor do topo da pilha.
 No *desempilhar(No **pilha) {
     No *remover = NULL;
     if (*pilha) {
-        remover = *pilha;
-        *pilha = remover->prox;
+        remover = *pilha; // O nó a ser removido do topo da pilha.
+        *pilha = remover->prox; // O novo topo passa a ser o proximo elemento.
     } else {
         printf("\tPilha vazia!\n");
     }
-    return remover;
+    return remover; // Retorna o nó removido
 }
 
 float operacao(float a, float b, char x) {
@@ -39,7 +42,7 @@ float operacao(float a, float b, char x) {
         case '-': 
             return a - b;
             break;
-        case '/':
+        case '/': // Divisão de número real.
             if(b == 0){
                 printf("Erro: não é possivel fazer divisão por zero!\n");
             }
@@ -48,13 +51,13 @@ float operacao(float a, float b, char x) {
         case '*': 
             return a * b;
             break;
-        case '^': 
+        case '^':  // Operação da Exponenciação
             return pow(a, b);
             break;
-        case '&': 
+        case '&': // Raiz quadrada, somente um dos operador é usado
             return sqrt(a);
             break;
-        case '%': 
+        case '%': // Resto da divisão
             return fmod(a, b);
             break;
         default: 
@@ -62,6 +65,7 @@ float operacao(float a, float b, char x) {
     }
 }
 
+// Função que resolve os calculos da calculadora RPN.
 float resolverExp(char x[]) {
     char *poteiro;
     float num;
@@ -70,34 +74,35 @@ float resolverExp(char x[]) {
     poteiro = strtok(x, " ");
     while (poteiro) {
         if (poteiro[0] == '+' || poteiro[0] == '-' || poteiro[0] == '/' || poteiro[0] == '*' || poteiro[0] == '|' || poteiro[0] == '&') {
-            n1 = desempilhar(&pilha);
-            n2 = desempilhar(&pilha);
+            n1 = desempilhar(&pilha); // Faz a função desempilhar para guardar o valor na variavel n1
+            n2 = desempilhar(&pilha); // Faz a função desempilhar para guardar o valor na variavel n2
 
-            num = operacao(n2->valor, n1->valor, poteiro[0]);
-            pilha = empilhar(pilha, num);
+            num = operacao(n2->valor, n1->valor, poteiro[0]); // Realiza a função da operação
+            pilha = empilhar(pilha, num); // Empilha os resultado da função da operação.
 
             free(n1);
             free(n2);
         } else {
-            num = atof(poteiro);
+            num = atof(poteiro); // Converte a string em número
             pilha = empilhar(pilha, num);
         }
         poteiro = strtok(NULL, " ");
     }
 
-    n1 = desempilhar(&pilha);
+    n1 = desempilhar(&pilha); // último número da pilha e também o resultado final
     num = n1->valor;
     free(n1);
     return num;
 }
 
+// Função que faz a leitura dos arquivos txt, resolvendo as expressões numericas.
 void lerArquivos(char *nomeArquivos[], int numeroArquivos) {
     FILE *arquivo;
     char linha[100];
     char expressaoOriginal[100];
 
     for (int i = 0; i < numeroArquivos; i++) {
-        arquivo = fopen(nomeArquivos[i], "r");
+        arquivo = fopen(nomeArquivos[i], "r"); // Abre o arquivo texto.
 
         if (arquivo == NULL) {
             printf("Erro ao abrir o arquivo %s.\n", nomeArquivos[i]);
@@ -106,13 +111,13 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos) {
 
         printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
         while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-            linha[strcspn(linha, "\n")] = 0;
+            linha[strcspn(linha, "\n")] = 0; // Remove a quebra de linha
             strcpy(expressaoOriginal, linha);
             printf("Expressao: %s = %.0f\n", expressaoOriginal, resolverExp(linha));
         }
 
         printf("\n");
-        fclose(arquivo);
+        fclose(arquivo); // Fecha o arquivo de texto.
     }
 }
 
