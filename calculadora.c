@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <math.h>
 #include <string.h>
+#include <avr/io.h>
 
 // Representação de uma estrutura de dados dinâmica usando uma lista encadeada
 typedef struct no{
@@ -134,8 +134,9 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     FILE *arquivo;
     char linha[100];
     char expressaoOriginal[100];
+    int i;
 
-    for(int i = 0; i < numeroArquivos; i++){
+    for(i = 0; i < numeroArquivos; i++){
         arquivo = fopen(nomeArquivos[i], "r"); // Abre o arquivo texto
 
         if(arquivo == NULL){
@@ -144,7 +145,7 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
         }
 
         printf("Resultados do arquivo %s:\n", nomeArquivos[i]);
-        while (fgets(linha, sizeof(linha), arquivo) != NULL){
+        while(fgets(linha, sizeof(linha), arquivo) != NULL){
             linha[strcspn(linha, "\n")] = 0; // Remove a quebra de linha
             strcpy(expressaoOriginal, linha);
             printf("Expressao: %s = %.0f\n", expressaoOriginal, resolverExp(linha));
@@ -152,6 +153,42 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
 
         printf("\n");
         fclose(arquivo); // Fecha o arquivo de texto
+    }
+}
+
+void geraAssembly(char *exp, FILE *arqAssembly){
+    char *token;
+    float num1, num2, resultado;
+
+    // Gera um Assembly para as expressões
+    while(token){
+        if(strchr("+-*/^", token[0])){
+            // Operações 
+            num2 = atof(token);
+            token = strtok(NULL, " ");
+            num1 = atof(token); 
+
+            if(token[0] == '+'){
+                fprintf(arqAssembly, "  ; Soma\n");
+                fprintf(arqAssembly, "  add r0, r1\n");
+            }else if(token[0] == '-'){
+                fprintf(arqAssembly, "  ; Subtracao\n");
+                fprintf(arqAssembly, "  sub r0, r1\n");
+            }else if(token == '*'){
+                fprintf(arqAssembly, "  ; Multiplicacao\n");
+                fprintf(arqAssembly, "  mul r0, r1\n");
+            }else if(token[0] == '/'){
+                fprintf(arqAssembly, "  ; Divisao\n");
+                fprintf(arqAssembly, "  div r0, r1\n");
+            }else if(token[0] == '^'){
+                fprintf(arqAssembly, "  ; Potenciação\n");
+                fprintf(arqAssembly, "  ; Implementar potencia\n");
+            }else if(token[0] == '%'){
+                fprintf(arqAssembly, "  ; Resto da Divisao\n");
+                fprintf(arqAssembly, "  ; Implementar resto da divisao\n");
+            }
+        }
+        token = strtok(NULL, " ");
     }
 }
 
