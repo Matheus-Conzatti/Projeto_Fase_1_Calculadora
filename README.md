@@ -1,6 +1,6 @@
 # Objetivo do projeto
 
-Pesquisar e praticar. Pesquisar os conteúdos que irão complementar o material apresentado em sala ou nos livros sugeridos na ementa e praticar estes mesmos conceitos. Esta é uma oportunidade para aprimorar sua formação e se destacar. Uma avaliação com oportunidade de crescimento acadêmico e profissional.
+- Pesquisar e praticar. Pesquisar os conteúdos que irão complementar o material apresentado em sala ou nos livros sugeridos na ementa e praticar estes mesmos conceitos. Esta é uma oportunidade para aprimorar sua formação e se destacar. Uma avaliação com oportunidade de crescimento acadêmico e profissional.
 
 # Descrição do Projeto.
 
@@ -17,4 +17,4 @@ Pesquisar e praticar. Pesquisar os conteúdos que irão complementar o material 
 | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/73480995?s=400&u=59cdf2580e9db08617dd13ea6b14e5ed2086fde8&v=4" width=115><br><sub>Matheus Conzatti de Souza</sub>](https://github.com/Matheus-Conzatti) |  
 | :---: |
 
-- Conclusão do Projeto em 02/04/2025.
+- Conclusão da Atividade Somativa 01 em 02/04/2025.
