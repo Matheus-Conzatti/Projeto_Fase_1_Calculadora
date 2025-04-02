@@ -4,7 +4,7 @@ Pesquisar e praticar. Pesquisar os conteúdos que irão complementar o material 
 
 # Descrição do Projeto.
 
-** Seu objetivo será desenvolver um programa, usando Python, C, ou C++, capaz de abrir um arquivo de texto, contendo expressões aritméticas simples, com uma expressão aritmética por linha e executar as expressões em um ambiente de testes, seu notebook, e em um Arduíno Uno.
+- Seu objetivo será desenvolver um programa, usando Python, C, ou C++, capaz de abrir um arquivo de texto, contendo expressões aritméticas simples, com uma expressão aritmética por linha e executar as expressões em um ambiente de testes, seu notebook, e em um Arduíno Uno.
 
 - O seu programa deverá executar cada uma das expressões indicadas no Arduíno e apresentar o resultado das operações contidas em todas as linhas do arquivo de entrada.
 
