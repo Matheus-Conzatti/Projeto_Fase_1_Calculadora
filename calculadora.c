@@ -1,3 +1,5 @@
+// Nome: Matheus Conzatti de Souza
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,6 +10,7 @@ typedef struct no{
     float valor; // Recebe um valor numérico
     struct no *prox; // Ponteiro para o próximo nó na pilha
 }No;
+
 
 // Variáveis para os comandos especiais N RES, V MEM e MEM
 float memoria = 0.0;
@@ -51,9 +54,9 @@ float operacao(float a, float b, char x){
             return a - b;
             break;
         case '/': // Divisão de numeros reais
-            return (b != 0) ? a / b : NAN;
+            return (b != 0) ? a / b : NAN; // Não deixa a divisão por zero
             break;
-        case '*': 
+        case '*': // Multiplicação
             return a * b;
             break;
         case '^': 
@@ -76,7 +79,7 @@ float resolverExp(char x[]){
     float num;
     No *n1, *n2, *pilha = NULL;
 
-    ponteiro = strtok(x, " ");
+    ponteiro = strtok(x, " "); // Divide as strings usando um espaçamento.
     while (ponteiro) {
         if(ponteiro[0] == '('){
             if(strstr(ponteiro, "RES")){
@@ -88,10 +91,10 @@ float resolverExp(char x[]){
                 }else{
                     printf("\tResultado N não foi encontrado.\n");
                 }
-            }else if (strstr(ponteiro, "MEM")){
+            }else if(strstr(ponteiro, "MEM")){
                 // Processa o comando (MEM)
-                pilha = empilhar(pilha, memoria);
-            }else if (strstr(ponteiro, "V MEM")){
+                pilha = empilhar(pilha, memoria); // Utiliza o valor da memória
+            }else if(strstr(ponteiro, "V MEM")){ // O strstr é para subtrings dentor da string
                 // Processa o comando (V MEM)
                 float v = atof(ponteiro + 6); // Captura o número após "V MEM"
                 memoria = v;
@@ -104,8 +107,8 @@ float resolverExp(char x[]){
                 num = operacao(n2->valor, n1->valor, ponteiro[0]); // Realiza a operação
                 pilha = empilhar(pilha, num);
                 resultado[contResultados++] = num; // Armazena o resultado
-                free(n1);
-                free(n2);
+                free(n1); // Para evitar o consumo desnecessário de memória
+                free(n2); // Para evitar o consumo desnecessário de memória
             }else{
                 printf("\tErro: Pilha nao contem elementos suficientes para a operacao!\n");
             }
@@ -114,47 +117,18 @@ float resolverExp(char x[]){
             pilha = empilhar(pilha, num);
             resultado[contResultados++] = num; // Armazena o resultado
         }
-        ponteiro = strtok(NULL, " ");
+        ponteiro = strtok(NULL, " "); // Divide as strings usando um espaçamento.
     }
 
     if(pilha){
         n1 = desempilhar(&pilha); // Pega o último valor da pilha
         num = n1->valor;
-        free(n1);
+        free(n1);// Para evitar o consumo desnecessário de memória
     }else{
         num = 0.0;
         printf("\tErro: Pilha final vazia!\n");
     }
     return num;
-}
-
-void geraAssembly(char *exp, FILE *arqAssembly){
-    char *token = strtok(exp, " ");
-    float num1, num2;
-
-    while(token){
-        if(strchr("+-*/^%", token[0])){
-            num2 = atof(strtok(NULL, " "));
-            num1 = atof(strtok(NULL, " "));
-            fprintf(arqAssembly,"  ldi r0, %d\n", (int)num1);
-            fprintf(arqAssembly, "  ldi r1, %d\n", (int)num2);
-
-            if(strcmp(token, "+") == 0){
-                fprintf(arqAssembly, "  add r0, r1\n");
-            }else if(strcmp(token, "-") == 0){
-                fprintf(arqAssembly, "  sub r0, r1\n");
-            }else if (strcmp(token, "*") == 0){ 
-                fprintf(arqAssembly, "  mul r0, r1\n");
-            }
-            else if (strcmp(token, "/") == 0){
-                fprintf(arqAssembly, "  div r0, r1\n");
-            }
-            else if (strcmp(token, "^") == 0){ 
-                fprintf(arqAssembly, "  ; Potenciação (implementar)\n");
-            }
-        }
-        token = strtok(NULL, " ");
-    }
 }
 
 // Função que faz a leitura dos arquivos txt, resolvendo as expressões numéricas
@@ -184,6 +158,39 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     }
 }
 
+// Função que faz a leitura e gera o arquivo Assembly
+void geraAssembly(char *exp, FILE *arqAssembly){
+    char *token = strtok(exp, " ");
+    float num1, num2;
+
+    while(token){
+        if(strchr("+-*/^%", token[0])){
+            num2 = atof(strtok(NULL, " "));
+            // A fução atof serve para converte strings númericas em número descimal
+            num1 = atof(strtok(NULL, " ")); // O strtok é para a extração de tokens
+            // O ldi é para fazer o carregamento imediato
+            fprintf(arqAssembly,"  ldi r16, %d\n", (int)num1);  // Os r16 e r17 são registradores em pequenas areas de armazenamento da cpu 
+            fprintf(arqAssembly, "  ldi r17, %d\n", (int)num2); // Os r16 e r17 são registradores em pequenas areas de armazenamento da cpu
+
+            if(strcmp(token, "+") == 0){
+                fprintf(arqAssembly, "  add r16, r17\n");
+            }else if(strcmp(token, "-") == 0){
+                fprintf(arqAssembly, "  sub r16, r17\n");
+            }else if (strcmp(token, "*") == 0){ 
+                fprintf(arqAssembly, "  mul r16, r17\n");
+            }else if (strcmp(token, "/") == 0){
+                // A função call é uma instrução de subrotina
+                fprintf(arqAssembly, "  call div_avr\n"); // Operação que chama a divisão
+            }else if (strcmp(token, "^") == 0){ 
+                fprintf(arqAssembly, "  call pow_avr\n"); // Operação que chama a potênciação
+            }else if(strcmp(token, "%")  == 0){
+                fprintf(arqAssembly, "  call mod_avr\n"); // Operação que chama resto da divisão
+            }
+        }
+        token = strtok(NULL, " ");
+    }
+}
+
 void lerArqGeradoAssembly(char *nomeArquivos[], int numeroArquivos){
     FILE *arquivo, *arquivosAssembly;
     char linha[100];
@@ -194,7 +201,7 @@ void lerArqGeradoAssembly(char *nomeArquivos[], int numeroArquivos){
         printf("Erro ao criar arquivo Assembly.\n");
         return;
     }
-    
+
     for(int i = 0; i < numeroArquivos; i++){
         arquivo = fopen(nomeArquivos[i], "r");
         if (!arquivo) {
@@ -206,16 +213,16 @@ void lerArqGeradoAssembly(char *nomeArquivos[], int numeroArquivos){
             linha[strcspn(linha, "\n")] = 0;
             geraAssembly(linha, arquivosAssembly);
         }
-        fclose(arquivo);
+        fclose(arquivo); // Fecha o arquivo de texto
     }
-    fclose(arquivosAssembly);
+    fclose(arquivosAssembly);// Fecha na parte do arquivo do Assembly
 }
 
 int main() {
     char *nomesArquivos[] = {"expressoes1.txt", "expressoes2.txt", "expressoes3.txt"};
-    int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
+    int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]); // Verifica o tamanho da lista de arquivos
 
-    lerArquivos(nomesArquivos, numArquivos);
-    lerArqGeradoAssembly(nomesArquivos, numArquivos);
+    lerArquivos(nomesArquivos, numArquivos); // Chama a função de leitura de arquivo texto
+    lerArqGeradoAssembly(nomesArquivos, numArquivos); // Chama a função de leitura de arquivo Assembly
     return 0;
 }
