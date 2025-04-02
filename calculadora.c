@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <avr/io.h>
 
 // Representação de uma estrutura de dados dinâmica usando uma lista encadeada
 typedef struct no{
@@ -45,13 +44,13 @@ No *desempilhar(No **pilha) {
 // Função de operações matemáticas
 float operacao(float a, float b, char x){
     switch (x) {
-        case '+': 
-            return a + b;
+        case '+': // Soma
+            return a + b; 
             break;
-        case '-': 
+        case '-':  // Subtração
             return a - b;
             break;
-        case '/': 
+        case '/': // Divisão de numeros reais
             return (b != 0) ? a / b : NAN;
             break;
         case '*': 
@@ -129,6 +128,35 @@ float resolverExp(char x[]){
     return num;
 }
 
+void geraAssembly(char *exp, FILE *arqAssembly){
+    char *token = strtok(exp, " ");
+    float num1, num2;
+
+    while(token){
+        if(strchr("+-*/^%", token[0])){
+            num2 = atof(strtok(NULL, " "));
+            num1 = atof(strtok(NULL, " "));
+            fprintf(arqAssembly,"  ldi r0, %d\n", (int)num1);
+            fprintf(arqAssembly, "  ldi r1, %d\n", (int)num2);
+
+            if(strcmp(token, "+") == 0){
+                fprintf(arqAssembly, "  add r0, r1\n");
+            }else if(strcmp(token, "-") == 0){
+                fprintf(arqAssembly, "  sub r0, r1\n");
+            }else if (strcmp(token, "*") == 0){ 
+                fprintf(arqAssembly, "  mul r0, r1\n");
+            }
+            else if (strcmp(token, "/") == 0){
+                fprintf(arqAssembly, "  div r0, r1\n");
+            }
+            else if (strcmp(token, "^") == 0){ 
+                fprintf(arqAssembly, "  ; Potenciação (implementar)\n");
+            }
+        }
+        token = strtok(NULL, " ");
+    }
+}
+
 // Função que faz a leitura dos arquivos txt, resolvendo as expressões numéricas
 void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     FILE *arquivo;
@@ -156,40 +184,31 @@ void lerArquivos(char *nomeArquivos[], int numeroArquivos){
     }
 }
 
-void geraAssembly(char *exp, FILE *arqAssembly){
-    char *token;
-    float num1, num2, resultado;
+void lerArqGeradoAssembly(char *nomeArquivos[], int numeroArquivos){
+    FILE *arquivo, *arquivosAssembly;
+    char linha[100];
 
-    // Gera um Assembly para as expressões
-    while(token){
-        if(strchr("+-*/^", token[0])){
-            // Operações 
-            num2 = atof(token);
-            token = strtok(NULL, " ");
-            num1 = atof(token); 
+    arquivosAssembly = fopen("calculadora.asm", "w");
 
-            if(token[0] == '+'){
-                fprintf(arqAssembly, "  ; Soma\n");
-                fprintf(arqAssembly, "  add r0, r1\n");
-            }else if(token[0] == '-'){
-                fprintf(arqAssembly, "  ; Subtracao\n");
-                fprintf(arqAssembly, "  sub r0, r1\n");
-            }else if(token == '*'){
-                fprintf(arqAssembly, "  ; Multiplicacao\n");
-                fprintf(arqAssembly, "  mul r0, r1\n");
-            }else if(token[0] == '/'){
-                fprintf(arqAssembly, "  ; Divisao\n");
-                fprintf(arqAssembly, "  div r0, r1\n");
-            }else if(token[0] == '^'){
-                fprintf(arqAssembly, "  ; Potenciação\n");
-                fprintf(arqAssembly, "  ; Implementar potencia\n");
-            }else if(token[0] == '%'){
-                fprintf(arqAssembly, "  ; Resto da Divisao\n");
-                fprintf(arqAssembly, "  ; Implementar resto da divisao\n");
-            }
-        }
-        token = strtok(NULL, " ");
+    if(!arquivosAssembly){
+        printf("Erro ao criar arquivo Assembly.\n");
+        return;
     }
+    
+    for(int i = 0; i < numeroArquivos; i++){
+        arquivo = fopen(nomeArquivos[i], "r");
+        if (!arquivo) {
+            printf("Erro ao abrir o arquivo %s.\n", nomeArquivos[i]);
+            continue;
+        }
+        printf("Gerando Assembly para %s...\n", nomeArquivos[i]);
+        while (fgets(linha, sizeof(linha), arquivo)) {
+            linha[strcspn(linha, "\n")] = 0;
+            geraAssembly(linha, arquivosAssembly);
+        }
+        fclose(arquivo);
+    }
+    fclose(arquivosAssembly);
 }
 
 int main() {
@@ -197,5 +216,6 @@ int main() {
     int numArquivos = sizeof(nomesArquivos) / sizeof(nomesArquivos[0]);
 
     lerArquivos(nomesArquivos, numArquivos);
+    lerArqGeradoAssembly(nomesArquivos, numArquivos);
     return 0;
 }
